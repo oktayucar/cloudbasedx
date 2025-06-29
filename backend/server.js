@@ -17,7 +17,10 @@ const PORT = process.env.PORT || 5050;
 
 // Middleware
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+  origin: ['https://cloudebasedx.com', 'http://localhost:3000', 'https://*.netlify.app'],
+  credentials: true
+}));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
@@ -29,45 +32,45 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // Static files
-app.use('/uploads', express.static('uploads'));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// API Routes (must come before catch-all route)
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    message: 'CloudBasedX API is running',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/files', fileRoutes);
 
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'CloudBasedX API is running' });
-});
-
-// Serve static files from frontend
-app.use(express.static(path.join(__dirname, '../frontend')));
-
-// Serve frontend for all non-API routes (must be last)
+// Serve frontend for all non-API routes
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ 
-    error: 'Something went wrong!',
-    message: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
-  });
-});
-
 // Initialize database and start server
-initializeDatabase()
-  .then(() => {
+const startServer = async () => {
+  try {
+    await initializeDatabase();
+    console.log('✅ SQLite veritabanına bağlandı');
+    console.log('✅ Veritabanı tabloları oluşturuldu');
+    
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
-      console.log(`✅ SQLite veritabanına bağlandı`);
-      console.log(`✅ Veritabanı tabloları oluşturuldu`);
+      console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`🔗 Health check: http://localhost:${PORT}/api/health`);
     });
-  })
-  .catch(err => {
-    console.error('❌ Veritabanı başlatma hatası:', err);
-  });
+  } catch (error) {
+    console.error('❌ Server başlatma hatası:', error);
+    process.exit(1);
+  }
+};
+
+startServer();
 
 module.exports = app; 

@@ -1,7 +1,7 @@
-// API base URL - production için domain kullan
+// API base URL - production için backend URL'yi buraya girin
 const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
   ? 'http://localhost:5050/api' 
-  : 'https://api.cloudebasedx.com/api'; // DNS ile yönlendirilecek
+  : 'https://YOUR_RAILWAY_APP.railway.app/api'; // Bu URL'yi backend deploy ettikten sonra güncelleyin
 
 // App State
 let currentUser = null;
