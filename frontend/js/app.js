@@ -1,7 +1,7 @@
-// API base URL - production için backend URL'yi buraya girin
+// API base URL - production için domain kullan
 const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
   ? 'http://localhost:5050/api' 
-  : 'https://cloudbasedx-backend.onrender.com/api'; // Render backend URL'si
+  : 'https://api.cloudebasedx.com/api'; // DNS ile yönlendirilecek
 
 // App State
 let currentUser = null;

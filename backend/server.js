@@ -31,21 +31,21 @@ app.use(limiter);
 // Static files
 app.use('/uploads', express.static('uploads'));
 
-// Serve static files from frontend
-app.use(express.static(path.join(__dirname, '../frontend')));
-
-// Routes
+// API Routes (must come before catch-all route)
 app.use('/api/auth', authRoutes);
 app.use('/api/files', fileRoutes);
 
-// Serve frontend for all non-API routes
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/index.html'));
-});
-
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Server is running' });
+  res.json({ status: 'OK', message: 'CloudBasedX API is running' });
+});
+
+// Serve static files from frontend
+app.use(express.static(path.join(__dirname, '../frontend')));
+
+// Serve frontend for all non-API routes (must be last)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
 // Error handling middleware
@@ -55,11 +55,6 @@ app.use((err, req, res, next) => {
     error: 'Something went wrong!',
     message: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
   });
-});
-
-// 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({ error: 'Route not found' });
 });
 
 // Initialize database and start server

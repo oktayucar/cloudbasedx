@@ -1,6 +1,6 @@
 [build]
   publish = "frontend"
-  command = "npm install && cd backend && npm install"
+  command = "echo 'No build required'"
 
 [build.environment]
   NODE_VERSION = "18"
